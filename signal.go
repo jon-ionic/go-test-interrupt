@@ -5,31 +5,35 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 func main() {
-	// Create a channel to receive the signals.
-	sigChan := make(chan os.Signal, 1)
+	sigChan := make(chan os.Signal, 2)
 
-	// Notify the channel on receiving os.Interrupt and syscall.SIGTERM signals.
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 
 	fmt.Println("Waiting for signals...")
 
-	// Block until a signal is received.
-	sig := <-sigChan
+	go func() {
+		sig := <-sigChan
 
-	// Print the received signal.
-	switch sig {
-	case os.Interrupt:
-		fmt.Println("Received os.Interrupt signal")
-	case syscall.SIGTERM:
-		fmt.Println("Received syscall.SIGTERM signal")
-	default:
-		fmt.Println("Received unknown signal:", sig)
+		switch sig {
+		case os.Interrupt:
+			fmt.Println("Received os.Interrupt signal")
+		case syscall.SIGTERM:
+			fmt.Println("Received syscall.SIGTERM signal")
+		default:
+			fmt.Println("Received unknown signal:", sig)
+		}
+
+		fmt.Println("Exiting program")
+		os.Exit(0)
+	}()
+
+	for {
+		fmt.Println("Program running...")
+		time.Sleep(10 * time.Second)
 	}
-
-	// Exit the program.
-	fmt.Println("Exiting program")
 }
 
