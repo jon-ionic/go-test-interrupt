@@ -1,0 +1,26 @@
+name: create release
+
+on: push
+
+
+jobs:
+  build:
+    name: build and create release
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v2
+
+      - name: setup go env
+        uses: actions/setup-go@v4.0.0
+        with:
+          go-version-file: './go.mod'
+        if: startsWith(github.ref, 'refs/tags/')
+   
+      - name: build
+        run: go build .
+
+      - name: run signal-listener
+        run: |
+          ./signal-listener
+
